@@ -52,13 +52,13 @@ The obfuscation algortihm replaces the number of consecutive dots with a number,
 
 > S = ... = 3, Q = --.- = b1a, F = ..-. = 2a1.
 
-###Example
+### Example
 
   *  Sentence: I AM IN TROUBLE
   *  Morse Code: ../.-|--/..|-./-|.-.|---|..-|-...|.-..|.
   *  Obfuscated Morse Code: 2/1A|B/2|A1/A|1A1|C|2A|A3|1A2|1
 
-####Input
+#### Input
 
 An example input text file:
 
@@ -67,7 +67,7 @@ HELLO
 I AM IN TROUBLE
 ```
 
-####Output
+#### Output
 
 A text file in the following format:
 
@@ -104,9 +104,7 @@ $ bundle exec irb
  => "....|.|.-..|.-..|---/-|....|.|.-.|." 
 ```
 
-Reading from a file:
-
-
+To read from a file simply pass a valid filename instead of a string, and the contents of the file will be converted.
 
 Testing
 -------
@@ -141,10 +139,44 @@ Finished in 0.00199 seconds (files took 0.18806 seconds to load)
 COVERAGE: 100.00% -- 8/8 lines in 1 files
 ```
 
+Performance
+-----------
+Performance is slightly lower than existing Ruby default implementation.  Run performance check via:
+
+```sh
+$ rake performance
+```
+
+Which will give output like the following:
+
+```
+yarn run v1.15.2
+$ rake performance
+              user     system      total        real
+morse:    0.122377   0.007558   0.129935 (  0.138081)
+obfuscate morse:  0.606511   0.019096   0.625607 (  0.646695)
+```
+
+Issues
+------
+* currently raises error for non Array, but could prefer to ensure incoming argument is array using `Array(array)` to avoid error overhead?
+* currently uses a combination iterative/recursive approach.  Could we have a purely recursive and/or purely iterative approach?
+
+
+Future Work
+-----------
+* Improve performance
+* Release as RubyGem?
+
 Todo
 -----
 * more test cases
+  - need to cover more chars
+* reading from file, and output to file?
+  - stdin, and write output to file
 * comments?
 * error handling
 * performance
 * github
+* logging
+* stubbing logger

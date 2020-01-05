@@ -1,0 +1,4 @@
+require: rubocop-performance
+
+Metrics/BlockLength:
+  ExcludedMethods: ['describe', 'context']
