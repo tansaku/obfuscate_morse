@@ -2,4 +2,14 @@
 
 source 'https://rubygems.org'
 
-gem 'rspec'
+ruby '2.6.5'
+
+gem 'rake'
+
+group :test do
+  gem 'rspec'
+  gem 'rubocop'
+  gem 'rubocop-rspec'
+  gem 'simplecov'
+  gem 'simplecov-console'
+end
