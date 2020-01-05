@@ -3,9 +3,9 @@ Obfuscated Morse
 
 A program that will accept text either from stdin, or as a file path and will translate the alphanumeric sentence to Morse code and then obfuscate the Morse code. Below is a list of international Morse code and the algorithm for obfuscation. Letters are separated with pipe (|), and words are separated with forward slash (/).
 
-The current implementation uses a lookup table of characters to morse code, looping through lines, words and chars and replacing chars one by one and re-joining them with the appropriate "splitter" characters.  Obfuscation takes place by replacing strings matching each length of dots and dashes with the appropriate characters. 
+The current implementation uses a lookup table of characters to morse code, looping through lines, words and chars and replacing chars one by one and re-joining them with the appropriate "separator" characters (pipe or slash).  Obfuscation takes place by replacing strings matching sets of dots and dashes of particular lengths with the appropriate characters. 
 
-File input and output support is also provided
+File input, STDIN input and file output support are also provided
 
 International Morse Code
 ------------------------
@@ -103,6 +103,7 @@ $ bundle exec irb
 2.6.5 :001 > require './lib/obfuscate_morse'
  => false 
 2.6.5 :002 > obfuscated_morse('HELLO THERE')
+W, [2020-01-06T08:32:18.564286 #33058]  WARN -- : No file HELLO THERE, so processing as string: No such file or directory @ rb_sysopen - HELLO THERE
  => "4|1|1A2|1A2|C/A|4|1|1A1|1" 
 2.6.5 :003 > morse('HELLO THERE')
  => "....|.|.-..|.-..|---/-|....|.|.-.|." 
@@ -199,6 +200,7 @@ Issues
   - note `lib/obfuscate_morse.rb` getting close to comfortable length for single file - time to split?
 * Switching to STDIN based on sending 'stdin' string - brittle? Incompatible with upcasing?
 * Currently stubbing STDIN and File which is mocking something we don't own - another argument for the addition of dependency injection support.
+* Are code methods at right level of abstraction - is the narrative easily followed?  Probably not as much as it could be ... should improve as part of move to class/object structure
 
 
 Future Work

@@ -12,7 +12,7 @@ def obfuscated_morse(string_or_filename, output_file = nil)
   raise InvalidArgumentError, MESSAGE unless string_or_filename.is_a?(String)
 
   result = obfuscate(morse(check_for_content_source(string_or_filename)))
-  File.write(output_file, result) if output_file
+  file_output(output_file, result) if output_file
   result
 end
 
@@ -100,9 +100,18 @@ def check_for_content_source(string_or_filename_or_stdin)
 
   File.read(string_or_filename_or_stdin)
 rescue StandardError => e
-  log = "No file #{string_or_filename_or_stdin}, so processing as string: #{e}"
+  log = "No input file named '#{string_or_filename_or_stdin}'',"
+  log += "so processing as string (original error: '#{e}')'"
   LOGGER.warn log
   string_or_filename_or_stdin
+end
+
+def file_output(file, result)
+  File.write(file, result)
+rescue StandardError => e
+  log = "No output file named '#{file}'',"
+  log += " so cannot write to it (original error: '#{e}')'"
+  LOGGER.warn log
 end
 
 MESSAGE = 'argument must be filename or string'
