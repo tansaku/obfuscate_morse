@@ -99,7 +99,7 @@ def check_for_content_source(string_or_filename_or_stdin)
   return STDIN.read if string_or_filename_or_stdin == 'stdin'
 
   File.read(string_or_filename_or_stdin)
-rescue StandardError => e
+rescue Errno::ENOENT, Errno::EACCES => e
   log = "No input file named '#{string_or_filename_or_stdin}'',"
   log += "so processing as string (original error: '#{e}')'"
   LOGGER.warn log
@@ -108,9 +108,9 @@ end
 
 def file_output(file, result)
   File.write(file, result)
-rescue StandardError => e
-  log = "No output file named '#{file}'',"
-  log += " so cannot write to it (original error: '#{e}')'"
+rescue Errno::ENOENT, Errno::EACCES => e
+  log = "Cannot write to '#{file}'',"
+  log += " missing directory? (original error: '#{e}')'"
   LOGGER.warn log
 end
 

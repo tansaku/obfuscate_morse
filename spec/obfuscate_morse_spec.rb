@@ -62,7 +62,7 @@ describe 'obfuscate_morse' do
   it 'can handle error when output file does not exist' do
     result = '4|1|1A2|1A2|C'
     output_file = 'tmp/output.txt'
-    expect(File).to receive(:write).and_raise StandardError, 'no file'
+    expect(File).to receive(:write).and_raise Errno::ENOENT, 'no file'
     expect(obfuscated_morse('HELLO', output_file)).to eq result
   end
   it 'errors if not receiving string or filename as argument' do

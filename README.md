@@ -130,7 +130,7 @@ HELLO THERE!
  => "4|1|1A2|1A2|C/A|4|1|1A1|1|" 
 ```
 
-Note that when reading from STDIN, Ctrl-D or similar is required to terminate the input and proceed with morsing and obfuscating.
+Note that when reading from STDIN, a new line and Ctrl-D or similar is required to terminate the input and proceed with morsing and obfuscating.
 
 
 Testing
@@ -139,13 +139,13 @@ Testing
 The code can be tested as follows
 
 ```sh
-$ bundle exec rspec
+$ bundle exec rake
 ```
 
 Should give output like the following (including test coverage):
 
 ```sh
-$ be rake
+$ bundle exec rake
 Running RuboCop...
 Inspecting 6 files
 .....
@@ -178,14 +178,13 @@ Performance
 Obfuscation gives a clear drop in performance.  Run performance check via:
 
 ```sh
-$ rake performance
+$ bundle exec rake performance
 ```
 
 Which will give output like the following:
 
 ```
-yarn run v1.15.2
-$ rake performance
+$ bundle exec rake performance
               user     system      total        real
 morse:    0.122377   0.007558   0.129935 (  0.138081)
 obfuscated:  0.606511   0.019096   0.625607 (  0.646695)
@@ -195,10 +194,21 @@ Issues
 ------
 * Currently just ignores invalid chars, using `gsub('||', '|')` to remove any impact of their presence - should we perhaps be raising errors?
 * Currently raises an error for any non-string input, but perhaps could automatically stringify incoming input via `String(non_string)`?
-* Have broken larger morse method into multiple one line methods.  Is this easier to understand than the original?
+* Have broken larger morse method into multiple one line methods.  Hoping this is easier to understand than the original nested version?
+  ```rb
+  def morse(string)
+    string.split("\n").map do |line|
+      line.split(' ').map do |word|
+        word.chars.map do |char|
+          "#{MORSE[char]}|"
+        end.join.chomp('|')
+      end.join('/')
+    end.join("\n")
+  end
+  ```
 * Currently using LOGGER as constant - should we swtich to a class and use dependency injection?
   - note `lib/obfuscate_morse.rb` getting close to comfortable length for single file - time to split?
-* Switching to STDIN based on sending 'stdin' string - brittle? Incompatible with upcasing?
+* Switching to STDIN based on sending 'stdin' string - brittle? Incompatible with auto-upcasing?
 * Currently stubbing STDIN and File which is mocking something we don't own - another argument for the addition of dependency injection support.
 * Are code methods at right level of abstraction - is the narrative easily followed?  Probably not as much as it could be ... should improve as part of move to class/object structure
 
@@ -206,6 +216,6 @@ Issues
 Future Work
 -----------
 * Automatically upper case incoming string?
-* Improve performance
+* Improve performance?
 * Release as RubyGem?
 
