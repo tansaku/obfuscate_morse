@@ -3,6 +3,10 @@ Obfuscated Morse
 
 A program that will accept text either from stdin, or as a file path and will translate the alphanumeric sentence to Morse code and then obfuscate the Morse code. Below is a list of international Morse code and the algorithm for obfuscation. Letters are separated with pipe (|), and words are separated with forward slash (/).
 
+The current implementation uses a lookup table of characters to morse code, looping through lines, words and chars and replacing chars one by one and re-joining them with the appropriate "splitter" characters.  Obfuscation takes place by replacing strings matching each length of dots and dashes with the appropriate characters. 
+
+File input and output support is also provided
+
 International Morse Code
 ------------------------
 
@@ -92,7 +96,7 @@ $ bundle
 Usage
 -----
 
-In a irb REPL:
+In an irb REPL:
 
 ```irb
 $ bundle exec irb
@@ -104,7 +108,29 @@ $ bundle exec irb
  => "....|.|.-..|.-..|---/-|....|.|.-.|." 
 ```
 
-To read from a file simply pass a valid filename instead of a string, and the contents of the file will be converted.
+To read from a file simply pass a valid filename instead of a string, and the contents of the file will be converted.  If an output file is desired pass a second argument with the file name, and the result will be written to that file:
+
+```irb
+$ bundle exec irb
+2.6.5 :001 > require './lib/obfuscate_morse'
+ => false 
+2.6.5 :002 > obfuscated_morse('tmp/input.txt', 'tmp/output.txt')
+ => "4|1|1A2|1A2|C" 
+ ```
+
+ Input can also be taken from STDIN like so:
+
+```irb
+$ bundle exec irb
+2.6.5 :001 > require './lib/obfuscate_morse'
+ => false 
+2.6.5 :002 > obfuscated_morse('stdin')
+HELLO THERE!
+ => "4|1|1A2|1A2|C/A|4|1|1A1|1|" 
+```
+
+Note that when reading from STDIN, Ctrl-D or similar is required to terminate the input and proceed with morsing and obfuscating.
+
 
 Testing
 -------
@@ -120,28 +146,35 @@ Should give output like the following (including test coverage):
 ```sh
 $ be rake
 Running RuboCop...
-Inspecting 5 files
+Inspecting 6 files
 .....
 
-5 files inspected, no offenses detected
+6 files inspected, no offenses detected
 ...
 
 obfuscate_morse
   obfuscates morse for "I AM IN TROUBLE"
   obfuscates morse "HELLO"
+  ignores invalid chars
+  obfuscates all possible chars
   morses "HELLO"
   morses "I AM IN TROUBLE"
+  morses all possible chars
+  handles file input
+  handles STDIN input
+  can output to file
+  errors if not receiving string or filename as argument
 
-Finished in 0.00199 seconds (files took 0.18806 seconds to load)
-4 examples, 0 failures
+Finished in 0.01223 seconds (files took 0.78073 seconds to load)
+10 examples, 0 failures
 
 
-COVERAGE: 100.00% -- 8/8 lines in 1 files
+COVERAGE: 100.00% -- 27/27 lines in 1 files
 ```
 
 Performance
 -----------
-Performance is slightly lower than existing Ruby default implementation.  Run performance check via:
+Obfuscation gives a clear drop in performance.  Run performance check via:
 
 ```sh
 $ rake performance
@@ -154,29 +187,23 @@ yarn run v1.15.2
 $ rake performance
               user     system      total        real
 morse:    0.122377   0.007558   0.129935 (  0.138081)
-obfuscate morse:  0.606511   0.019096   0.625607 (  0.646695)
+obfuscated:  0.606511   0.019096   0.625607 (  0.646695)
 ```
 
 Issues
 ------
-* currently raises error for non Array, but could prefer to ensure incoming argument is array using `Array(array)` to avoid error overhead?
-* currently uses a combination iterative/recursive approach.  Could we have a purely recursive and/or purely iterative approach?
+* Currently just ignores invalid chars, using `gsub('||', '|')` to remove any impact of their presence - should we perhaps be raising errors?
+* Currently raises an error for any non-string input, but perhaps could automatically stringify incoming input via `String(non_string)`?
+* Have broken larger morse method into multiple one line methods.  Is this easier to understand than the original?
+* Currently using LOGGER as constant - should we swtich to a class and use dependency injection?
+  - note `lib/obfuscate_morse.rb` getting close to comfortable length for single file - time to split?
+* Switching to STDIN based on sending 'stdin' string - brittle? Incompatible with upcasing?
+* Currently stubbing STDIN and File which is mocking something we don't own - another argument for the addition of dependency injection support.
 
 
 Future Work
 -----------
+* Automatically upper case incoming string?
 * Improve performance
 * Release as RubyGem?
 
-Todo
------
-* more test cases
-  - need to cover more chars
-* reading from file, and output to file?
-  - stdin, and write output to file
-* comments?
-* error handling
-* performance
-* github
-* logging
-* stubbing logger

@@ -1,32 +1,23 @@
 # frozen_string_literal: true
 
-require 'pry-byebug'
-# translate the alphanumeric sentence to Morse code and then obfuscate
-# see README and tests in `spec/` folder for more details
+require 'logger'
 
-def obfuscated_morse(string_or_filename)
+LOGGER = Logger.new(STDOUT)
+LOGGER.level = Logger::WARN
+
+# translates alphanumeric (upper case) sentences to Morse code and then
+# obfuscates - see README and tests in `spec/` folder for more details
+
+def obfuscated_morse(string_or_filename, output_file = nil)
   raise InvalidArgumentError, MESSAGE unless string_or_filename.is_a?(String)
 
-  obfuscate(morse(check_for_file_content(string_or_filename)))
+  result = obfuscate(morse(check_for_content_source(string_or_filename)))
+  File.write(output_file, result) if output_file
+  result
 end
-
-def check_for_file_content(string_or_filename)
-  File.readlines(string_or_filename)
-rescue StandardError => _e
-  puts "No filename #{string_or_filename}, so processing as string"
-  string_or_filename
-end
-
-MESSAGE = 'argument must be filename or string'
 
 def morse(string)
-  string.split("\n").map do |line|
-    line.split(' ').map do |word|
-      word.chars.map do |char|
-        "#{MORSE[char]}|"
-      end.join.chomp('|')
-    end.join('/')
-  end.join("\n")
+  string.split("\n").map { |line| morse_line(line) }.join("\n").gsub('||', '|')
 end
 
 def obfuscate(string)
@@ -89,3 +80,29 @@ MORSE = {
 }.freeze
 
 class InvalidArgumentError < StandardError; end
+
+private
+
+def morse_line(line)
+  line.split(' ').map { |word| morse_word(word) }.join('/')
+end
+
+def morse_word(word)
+  word.chars.map { |char| morse_char(char) }.join('|')
+end
+
+def morse_char(char)
+  MORSE[char]
+end
+
+def check_for_content_source(string_or_filename_or_stdin)
+  return STDIN.read if string_or_filename_or_stdin == 'stdin'
+
+  File.read(string_or_filename_or_stdin)
+rescue StandardError => e
+  log = "No file #{string_or_filename_or_stdin}, so processing as string: #{e}"
+  LOGGER.warn log
+  string_or_filename_or_stdin
+end
+
+MESSAGE = 'argument must be filename or string'
